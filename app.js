@@ -5,17 +5,21 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose');
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
+//var usersRouter = require('./routes/users');
+const UserRouter = require('./routes/User/User');
+const AdminRouterCategory = require('./routes/Admin/Category');
+const AdminRouterProduct = require('./routes/Admin/Product');
+const UserRouterOrder =require('./routes/User/Order');
 const ConnectMongoDB = async () =>{
   try{
-    mongoose.connect('mongodb://localhost:27017/shop-nodejs',{useNewUrlParser: true});
-    Console.log("ket noi du lieu thanh cong");
+   
+    mongoose.connect('mongodb://localhost:27017/shop-nodejs',{useNewUrlParser: true,useUnifiedTopology: true});
+      console.log("ket noi thanh cong");
   }catch(err){
-    Console.log("ket noi csdl loi :"+err);
+      console.log("ket noi csdl loi :"+err);
   }
 };
-
+ConnectMongoDB();
 var app = express();
 
 // view engine setup
@@ -29,8 +33,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
+//app.use('/users', usersRouter);
+app.use('/users',UserRouter.router);
+app.use('/adminCategory',AdminRouterCategory);
+app.use('/adminProduct',AdminRouterProduct);
+app.use('/usersOrder',UserRouterOrder);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

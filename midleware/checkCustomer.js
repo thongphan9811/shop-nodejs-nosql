@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 const routerUser =require('../routes/User/User');
 const AuthAdmin = async (req,res,next)=>{
     try{
-        const cookies = (cookie.parse(req.headers.cookie || ''));
-        token = cookies['session-token'];
+        
+        const token = req.header('sessoin-token');
         if(!token) throw " ban can dang nhap ";
         const decode = await jwt.verify(token,routerUser.token_key);
         userAdmin = decode;
@@ -23,8 +23,7 @@ const AuthAdmin = async (req,res,next)=>{
 
 const AuthCustomer = async (req,res,next)=>{
     try{
-        const cookies = (cookie.parse(req.headers.cookie || ''));
-        token = cookies['session-token'];
+        const token = req.header('sessoin-token');
         if(!token) throw " ban can dang nhap ";
         const decode = await jwt.verify(token,routerUser.token_key);
         userCustomer = decode;
