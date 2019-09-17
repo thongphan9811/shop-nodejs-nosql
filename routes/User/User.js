@@ -1,19 +1,21 @@
 var express = require('express');
 var router = express.Router();
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
-const UserModel = require("../models/User");
-const {constants} = require('../constants');
+const UserModel = require('../../models/User');
+const constants = require('../../constants/index');
 const token_key = 'asdasdhs';
 const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
 
 router.post('/login',async (req,res)=>{
     try{
+        
         const{username,password} = req.body;
          if(!username) return res.json({mess :"ban can nhap username"});
          if(!password) return res.json({mess :"ban can nhap password"});
-
+        //  const cookies = (cookie.parse(req.headers.cookie || ''));
+        //  const islogin = cookies['session-token'];
+        //if(islogin) return res.json({mess:"ban da dang nhap"});
          const findUsername = await UserModel.findOne({username});
          if(!findUsername) throw "ban nhap sai username hoac chua dang ki";
          const checkPass = await bcrypt.compareSync(password,findUsername.password);
@@ -26,7 +28,11 @@ router.post('/login',async (req,res)=>{
             path: '/',
             maxAge: 60 * 60 * 24 * 7 // 1 week
          }))
+         return res.json({
+             code :200 , mess:"dang nhap thanh cong",data:{JsonUser}
+         });
     }catch(err){
+        console.log(err);
         return res.json({
             code :400,
             mess : err
@@ -37,6 +43,7 @@ router.post('/login',async (req,res)=>{
 router.post('/register',async (req,res)=>{
     try{
         const {username ,password,role} = req.body;
+        console.log(username);
         const findUserName = await UserModel.findOne({username:username});
         if(findUserName)
             return res.json({mess:"ten dang ki da ton tai"});

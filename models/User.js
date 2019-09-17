@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const {constants} = require('../constants');
-const schema = new schema({
+const constants = require('../constants');
+const schema = new Schema({
     username : String,
     password :String,
     role : { type:String, default: constants.USER.ROLE.CUSTOMER}
