@@ -4,12 +4,31 @@ const midleware = require('../../midleware/checkCustomer');
 const CategoryModel = require('../../models/Category');
 const productModel = require('../../models/Product');
 const orderModel =require('../../models/Oder');
-
-router.get('/getProduct/:ProductName',midleware.AuthAdmin, async (req,res)=>{
+const viewModel = require('../../models/view');
+var moment = require('moment');// hỏi về hàm moment
+router.get('/:ProductName',midleware.authUsers , async (req,res)=>{
     try{
         const ProductName = req.params.ProductName;
-       // if(ProductName) ? productModel : productModel = null; 
-        const findPro = await productModel.find({name :ProductName}).populate('Category');
+        const findPro = await productModel.findOne({name :ProductName}).populate('category');
+        console.log(findPro);
+        if(!findPro) throw "khong tim thay ten san pham";
+        const checkview = await viewModel.findOne({product:findPro._id,viewer:req.user._id});
+        if(!checkview){
+            const date = new Date();
+            const viewerClass = new viewModel({ product:findPro._id ,viewer :req.user._id,date  });
+            const view = await viewerClass.save();
+        }
+        return res.json({code :200 , mess : "tim kiem thanh cong ", data : findPro});
+    }catch(err){
+        console.log(err);
+        return res.json({
+            code :400, mess:"tim kiem that bai ", data :err
+        });
+    }
+});
+router.get('/',midleware.authUsers , async (req,res)=>{
+    try{
+        const findPro = await productModel.find({}).populate('category');
         if(!findPro) throw "khong tim thay ten san pham";
         return res.json({code :200 , mess : "tim kiem thanh cong ", data : findPro});
     }catch(err){
@@ -18,7 +37,7 @@ router.get('/getProduct/:ProductName',midleware.AuthAdmin, async (req,res)=>{
         });
     }
 });
-router.post('/createProduct',midleware.AuthAdmin, async (req,res)=>{
+router.post('/',midleware.AuthAdmin, async (req,res)=>{
     try{
         const {title,name,oldPrice,newPrice,status,count,category} = req.body;
         const findname =await productModel.findOne({name});
@@ -33,7 +52,7 @@ router.post('/createProduct',midleware.AuthAdmin, async (req,res)=>{
         return res.json({ code:400 , mess :"that bai" , data:err    })
     }
 });
-router.put('/updateProduct/:oldname',midleware.AuthAdmin,async (req,res)=>{
+router.put('/:oldname',midleware.AuthAdmin,async (req,res)=>{
     try{
         const oldname = req.params.oldname;
         const {title,name,oldPrice,newPrice,status,count,category} = req.body;
@@ -47,7 +66,7 @@ router.put('/updateProduct/:oldname',midleware.AuthAdmin,async (req,res)=>{
         return res.json({ code:400 , mess :"that bai" , data:err });
     }
 });
-router.delete('/deleteProduct',midleware.AuthAdmin,async (req,res)=>{
+router.delete('/',midleware.AuthAdmin,async (req,res)=>{
     try{
         const name = req.body.name;
         const deleteName = await productModel.findOne({name});

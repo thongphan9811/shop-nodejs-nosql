@@ -6,21 +6,17 @@ const constants = require('../../constants/index');
 const token_key = 'asdasdhs';
 const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
-
+var moment = require('moment');
 router.post('/login',async (req,res)=>{
     try{
-        
         const{username,password} = req.body;
          if(!username) return res.json({mess :"ban can nhap username"});
          if(!password) return res.json({mess :"ban can nhap password"});
-        //  const cookies = (cookie.parse(req.headers.cookie || ''));
-        //  const islogin = cookies['session-token'];
-        //if(islogin) return res.json({mess:"ban da dang nhap"});
          const findUsername = await UserModel.findOne({username});
+         console.log(typeof(moment().format('DD/MM/YYYY')));
          if(!findUsername) throw "ban nhap sai username hoac chua dang ki";
          const checkPass = await bcrypt.compareSync(password,findUsername.password);
          if(!checkPass) throw "password khong dung";
-         findUsername.password = undefined;
          const JsonUser =JSON.parse(JSON.stringify(findUsername));
          const token = jwt.sign(JsonUser,token_key);
          res.setHeader('set-cookie',cookie.serialize('sessoin-token',token,{
